@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MapPin, Navigation } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
@@ -8,6 +8,7 @@ import { createSvgFallbackDataUri } from '../utils/fallbackData';
 
 export default function HomePage() {
   const { products, categories, collections, testimonials, settings } = useStore();
+  const homepageRef = useRef(null);
 
   useEffect(() => {
     updatePageMeta({
@@ -17,12 +18,56 @@ export default function HomePage() {
     });
   }, []);
 
+  useLayoutEffect(() => {
+    const homepage = homepageRef.current;
+    if (
+      !homepage ||
+      typeof window === 'undefined' ||
+      !('IntersectionObserver' in window) ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return undefined;
+    }
+
+    const sections = Array.from(homepage.children).filter(
+      (child) => child.tagName.toLowerCase() === 'section'
+    );
+    if (!sections.length) return undefined;
+
+    homepage.dataset.scrollRevealReady = 'true';
+    sections.forEach((section, index) => {
+      section.dataset.scrollReveal = index % 2 === 0 ? 'left' : 'right';
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.dataset.scrollVisible = 'true';
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -48px 0px' }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    return () => {
+      observer.disconnect();
+      delete homepage.dataset.scrollRevealReady;
+      sections.forEach((section) => {
+        delete section.dataset.scrollReveal;
+        delete section.dataset.scrollVisible;
+      });
+    };
+  }, []);
+
   const activeProducts = products.filter((p) => p.isActive !== false);
   const newArrivals = activeProducts.filter((p) => p.isNewArrival).slice(0, 4);
   const bestsellers = activeProducts.filter((p) => p.isBestseller).slice(0, 4);
 
   return (
-    <div className="space-y-16">
+    <div ref={homepageRef} className="home-page space-y-16">
       {/* HERO BANNER WITH ABOVE-THE-FOLD CTAs (Section 4.A & Checklist #4) */}
       <section className="bg-[#F4EEE5] border-b border-[#E9DED0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
@@ -112,50 +157,6 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* SHOP BY CATEGORY (All 13 Categories) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-          <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-[#C89B5C] font-semibold mb-2">
-              Curated Silversmith &amp; Goldsmith Lineages
-            </p>
-            <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-[#3C2B20]">
-              Shop by Jewellery Category
-            </h2>
-          </div>
-          <Link
-            to="/collections"
-            className="text-xs font-semibold text-[#C89B5C] hover:text-[#3C2B20] inline-flex items-center gap-1.5"
-          >
-            <span>View All 13 Categories</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
-          {categories.map((cat) => (
-            <Link
-              key={cat._id || cat.slug}
-              to={`/collections?category=${encodeURIComponent(cat.name)}`}
-              className="bg-[#F7F2EA] border border-[#E9DED0] hover:border-[#C89B5C] rounded-xl p-4 flex flex-col justify-between transition group"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className="w-8 h-8 rounded-full bg-[#FAF8F4] border border-[#E9DED0] flex items-center justify-center font-serif text-sm font-bold text-[#C89B5C] group-hover:bg-[#C89B5C] group-hover:text-white transition">
-                  {cat.name.charAt(0)}
-                </span>
-                <span className="text-[11px] text-[#827466]">Explore &rarr;</span>
-              </div>
-              <div>
-                <h3 className="font-serif text-lg font-semibold text-[#3C2B20] group-hover:text-[#C89B5C] transition">
-                  {cat.name}
-                </h3>
-                <p className="text-[11px] text-[#827466] line-clamp-1 mt-0.5">{cat.description}</p>
-              </div>
-            </Link>
-          ))}
         </div>
       </section>
 
@@ -303,6 +304,50 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {bestsellers.map((product) => (
             <ProductCard key={product._id} product={product} />
+          ))}
+        </div>
+      </section>
+
+      {/* SHOP BY CATEGORY (All 13 Categories) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-[#C89B5C] font-semibold mb-2">
+              Curated Silversmith &amp; Goldsmith Lineages
+            </p>
+            <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-[#3C2B20]">
+              Shop by Jewellery Category
+            </h2>
+          </div>
+          <Link
+            to="/collections"
+            className="text-xs font-semibold text-[#C89B5C] hover:text-[#3C2B20] inline-flex items-center gap-1.5"
+          >
+            <span>View All 13 Categories</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
+          {categories.map((cat) => (
+            <Link
+              key={cat._id || cat.slug}
+              to={`/collections?category=${encodeURIComponent(cat.name)}`}
+              className="bg-[#F7F2EA] border border-[#E9DED0] hover:border-[#C89B5C] rounded-xl p-4 flex flex-col justify-between transition group"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="w-8 h-8 rounded-full bg-[#FAF8F4] border border-[#E9DED0] flex items-center justify-center font-serif text-sm font-bold text-[#C89B5C] group-hover:bg-[#C89B5C] group-hover:text-white transition">
+                  {cat.name.charAt(0)}
+                </span>
+                <span className="text-[11px] text-[#827466]">Explore &rarr;</span>
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-semibold text-[#3C2B20] group-hover:text-[#C89B5C] transition">
+                  {cat.name}
+                </h3>
+                <p className="text-[11px] text-[#827466] line-clamp-1 mt-0.5">{cat.description}</p>
+              </div>
+            </Link>
           ))}
         </div>
       </section>

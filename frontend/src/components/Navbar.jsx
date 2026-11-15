@@ -17,12 +17,6 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 bg-[#FAF8F4]/95 backdrop-blur border-b border-[#E9DED0]">
-      {/* Manageable Announcement Bar */}
-      <div className="bg-[#F4EEE5] text-[#3C2B20] text-xs py-2 px-4 text-center border-b border-[#E9DED0] font-medium tracking-wide">
-        {settings?.announcementText ||
-          'BIS 916 Hallmarked Gold & Certified Polki • Private Bridal Consultations Available at Our Showroom'}
-      </div>
-
       {/* Main Header Row */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3 group">
