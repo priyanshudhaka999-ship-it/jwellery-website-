@@ -1,0 +1,18 @@
+# AARANYA Fine Indian Jewellery — robots.txt
+# Allows indexing of all public customer catalogue pages
+# Prevents crawling of private admin dashboard and API routes (Security is enforced via JWT + HTTP-Only Cookies)
+
+User-agent: *
+Allow: /
+Allow: /collections
+Allow: /product/
+Allow: /about
+Allow: /contact
+Allow: /faq
+Allow: /search
+Allow: /wishlist
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+
+Sitemap: https://aaranyajewels.com/sitemap.xml

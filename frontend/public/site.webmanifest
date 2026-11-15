@@ -1,0 +1,16 @@
+{
+  "name": "AARANYA | Timeless Indian Jewellery",
+  "short_name": "AARANYA",
+  "description": "Handcrafted Indian Gold, Kundan, Polki, Diamond, and Temple Jewellery Catalogue.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F4",
+  "theme_color": "#C89B5C",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

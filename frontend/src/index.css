@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-main: #FAF8F4;
+  --bg-secondary: #F4EEE5;
+  --bg-card: #F7F2EA;
+  --gold-primary: #C89B5C;
+  --gold-secondary: #D8B982;
+  --text-main: #3C2B20;
+  --text-secondary: #827466;
+  --border-luxury: #E9DED0;
+}
+
+body {
+  background-color: #FAF8F4;
+  color: #3C2B20;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-serif {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
