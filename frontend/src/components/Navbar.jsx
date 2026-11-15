@@ -3,16 +3,41 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Search, Heart, Menu, X } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
+function NavFlourish({ active }) {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      viewBox="0 0 100 12"
+      className={`pointer-events-none absolute left-1/2 top-full h-3 w-[calc(100%+12px)] -translate-x-1/2 overflow-visible transition-opacity duration-300 ${
+        active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
+      }`}
+      fill="none"
+      stroke="#B88A44"
+      strokeWidth="1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 7h17c8 0 9-4 17-4 6 0 8 4 14 4s8-4 14-4c8 0 9 4 17 4h17" />
+      <path d="M21 6c-4-4-8-4-10-2 1 4 5 5 10 2Z" />
+      <path d="M79 6c4-4 8-4 10-2-1 4-5 5-10 2Z" />
+      <path d="M37 4c-2-3-5-3-7-2 1 3 3 4 7 2Z" />
+      <path d="M63 4c2-3 5-3 7-2-1 3-3 4-7 2Z" />
+      <path d="M47 7c0-3 2-4 3-5 1 1 3 2 3 5-1 2-5 2-6 0Z" />
+    </svg>
+  );
+}
+
 export default function Navbar() {
   const { settings, wishlist } = useStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
   const navItemClass = ({ isActive }) =>
-    `py-1 border-b-2 transition ${
+    `group relative inline-flex flex-col items-center py-1 tracking-[0.03em] transition-colors duration-300 ${
       isActive
-        ? 'border-[#C89B5C] text-[#C89B5C] font-semibold'
-        : 'border-transparent text-[#3C2B20] hover:text-[#C89B5C]'
+        ? 'text-[#6E4E2E] font-semibold'
+        : 'text-[#3C2B20] hover:text-[#6E4E2E]'
     }`;
 
   return (
@@ -36,25 +61,51 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-7 text-sm font-medium">
           <NavLink to="/" end className={navItemClass}>
-            Home
+            {({ isActive }) => (
+              <>
+                <span>Home</span>
+                <NavFlourish active={isActive} />
+              </>
+            )}
           </NavLink>
           <NavLink to="/collections" className={navItemClass}>
-            Collections
+            {({ isActive }) => (
+              <>
+                <span>Collections</span>
+                <NavFlourish active={isActive} />
+              </>
+            )}
           </NavLink>
           <Link
             to="/collections?category=Bridal+Jewellery"
-            className="py-1 border-b-2 border-transparent text-[#3C2B20] hover:text-[#C89B5C] transition"
+            className={navItemClass({ isActive: false })}
           >
-            Bridal
+            <span>Bridal</span>
+            <NavFlourish active={false} />
           </Link>
           <NavLink to="/about" className={navItemClass}>
-            About &amp; Heritage
+            {({ isActive }) => (
+              <>
+                <span>About &amp; Heritage</span>
+                <NavFlourish active={isActive} />
+              </>
+            )}
           </NavLink>
           <NavLink to="/faq" className={navItemClass}>
-            FAQ
+            {({ isActive }) => (
+              <>
+                <span>FAQ</span>
+                <NavFlourish active={isActive} />
+              </>
+            )}
           </NavLink>
           <NavLink to="/contact" className={navItemClass}>
-            Visit Store
+            {({ isActive }) => (
+              <>
+                <span>Visit Store</span>
+                <NavFlourish active={isActive} />
+              </>
+            )}
           </NavLink>
         </nav>
 

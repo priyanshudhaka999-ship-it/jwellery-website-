@@ -33,6 +33,7 @@ export default function HomePage() {
       (child) => child.tagName.toLowerCase() === 'section'
     );
     if (!sections.length) return undefined;
+    const categoryCards = homepage.querySelectorAll('[data-category-card]');
 
     homepage.dataset.scrollRevealReady = 'true';
     sections.forEach((section, index) => {
@@ -43,7 +44,11 @@ export default function HomePage() {
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-          entry.target.dataset.scrollVisible = 'true';
+          if (entry.target.hasAttribute('data-category-card')) {
+            entry.target.dataset.categoryVisible = 'true';
+          } else {
+            entry.target.dataset.scrollVisible = 'true';
+          }
           observer.unobserve(entry.target);
         });
       },
@@ -51,6 +56,7 @@ export default function HomePage() {
     );
 
     sections.forEach((section) => observer.observe(section));
+    categoryCards.forEach((card) => observer.observe(card));
 
     return () => {
       observer.disconnect();
@@ -58,6 +64,9 @@ export default function HomePage() {
       sections.forEach((section) => {
         delete section.dataset.scrollReveal;
         delete section.dataset.scrollVisible;
+      });
+      categoryCards.forEach((card) => {
+        delete card.dataset.categoryVisible;
       });
     };
   }, []);
@@ -73,53 +82,53 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FAF8F4] border border-[#D8B982] text-xs font-medium text-[#3C2B20]">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[linear-gradient(180deg,_#FFFDF9_0%,_#F7EFE1_100%)] border border-[#B88A44] text-xs font-medium text-[#6E4E2E]">
                 <span className="w-2 h-2 rounded-full bg-[#C89B5C]" />
                 <span>BIS 916 Hallmarked • Heritage Karigari</span>
               </div>
 
-              <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold text-[#3C2B20] leading-[1.08]">
+              <h1 className="hero-entrance hero-entrance--heading font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold bg-[linear-gradient(135deg,_#4A3219_0%,_#8E6534_35%,_#B88A44_55%,_#5C3D1E_100%)] bg-clip-text text-transparent leading-[1.08]">
                 Timeless Indian Jewellery
               </h1>
 
-              <p className="text-base sm:text-lg text-[#827466] leading-relaxed max-w-2xl">
+              <p className="hero-entrance hero-entrance--subtitle text-base sm:text-lg text-[#827466] leading-relaxed max-w-2xl">
                 Handcrafted BIS 916 Hallmarked 22K Gold, Royal Bikaneri Kundan, and Certified Uncut Polki Heirlooms. Enquire on WhatsApp or visit our flagship showroom.
               </p>
 
               <div className="flex flex-wrap items-center gap-3.5 pt-2">
                 <Link
                   to="/collections"
-                  className="px-7 py-3.5 rounded-xl bg-[#C89B5C] hover:bg-[#b5894c] text-white text-sm font-semibold shadow-sm inline-flex items-center gap-2 transition"
+                  className="hero-entrance hero-entrance--cta-one relative isolate overflow-hidden px-7 py-3.5 rounded-xl border border-[#D4AF37] bg-[linear-gradient(110deg,_#4A3016_0%,_#8C6239_42%,_#C99E58_50%,_#7A5229_58%,_#3E2710_100%)] hover:brightness-110 text-white text-sm font-semibold shadow-[inset_0_1px_1px_rgba(255,240,200,0.5),0_10px_24px_-6px_rgba(92,61,30,0.45)] inline-flex items-center gap-2 transition duration-300 before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-gradient-to-b before:from-white/25 before:to-transparent before:content-[''] after:pointer-events-none after:absolute after:inset-y-0 after:-left-1/2 after:w-1/3 after:skew-x-[-20deg] after:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent)] after:transition-transform after:duration-700 after:content-[''] hover:after:translate-x-[450%]"
                 >
                   <span>Explore Collections</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   to="/collections?category=Bridal+Jewellery"
-                  className="px-6 py-3.5 rounded-xl border border-[#C89B5C] bg-white hover:bg-[#FAF8F4] text-[#3C2B20] text-sm font-semibold transition"
+                  className="hero-entrance hero-entrance--cta-two px-6 py-3.5 rounded-xl border border-[#B88A44] bg-[linear-gradient(180deg,_#FFFDF9_0%,_#F7EFE1_100%)] hover:brightness-[0.98] text-[#6E4E2E] text-sm font-semibold transition"
                 >
                   Discover Bridal Trousseau
                 </Link>
                 <Link
                   to="/contact"
-                  className="px-6 py-3.5 rounded-xl bg-[#FAF8F4] border border-[#E9DED0] hover:border-[#C89B5C] text-sm font-semibold text-[#3C2B20] inline-flex items-center gap-2 transition"
+                  className="hero-entrance hero-entrance--cta-three px-6 py-3.5 rounded-xl bg-[linear-gradient(180deg,_#FFFDF9_0%,_#F7EFE1_100%)] border border-[#B88A44] hover:brightness-[0.98] text-sm font-semibold text-[#6E4E2E] inline-flex items-center gap-2 transition"
                 >
-                  <MapPin className="w-4 h-4 text-[#C89B5C]" />
+                  <MapPin className="w-4 h-4 text-[#6E4E2E]" />
                   <span>Visit Our Store</span>
                 </Link>
               </div>
 
               <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#E9DED0] max-w-xl">
                 <div>
-                  <p className="font-serif text-2xl font-bold text-[#3C2B20]">BIS 916</p>
+                  <p className="font-serif text-2xl font-bold text-[#6E4E2E]">BIS 916</p>
                   <p className="text-xs text-[#827466]">HUID Hallmarked Gold</p>
                 </div>
                 <div>
-                  <p className="font-serif text-2xl font-bold text-[#3C2B20]">24K Foil</p>
+                  <p className="font-serif text-2xl font-bold text-[#6E4E2E]">24K Foil</p>
                   <p className="text-xs text-[#827466]">Authentic Jadau Kundan</p>
                 </div>
                 <div>
-                  <p className="font-serif text-2xl font-bold text-[#3C2B20]">Direct</p>
+                  <p className="font-serif text-2xl font-bold text-[#6E4E2E]">Direct</p>
                   <p className="text-xs text-[#827466]">WhatsApp &amp; Store Viewing</p>
                 </div>
               </div>
@@ -136,7 +145,7 @@ export default function HomePage() {
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = createSvgFallbackDataUri('Timeless Indian Jewellery', 'AARANYA Bridal Kundan Showcase', 'HERO-01');
                   }}
-                  className="w-full h-full object-cover"
+                  className="hero-entrance hero-entrance--image w-full h-full object-cover"
                 />
                 <div className="absolute bottom-4 inset-x-4 bg-[#FAF8F4]/95 backdrop-blur border border-[#E9DED0] rounded-2xl p-4 flex items-center justify-between gap-3">
                   <div>
@@ -329,10 +338,15 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
-          {categories.map((cat) => (
+          {categories.map((cat, index) => (
             <Link
               key={cat._id || cat.slug}
               to={`/collections?category=${encodeURIComponent(cat.name)}`}
+              data-category-card
+              style={{
+                '--category-card-delay': `${index * 55}ms`,
+                '--category-card-delay-mobile': `${index * 30}ms`,
+              }}
               className="bg-[#F7F2EA] border border-[#E9DED0] hover:border-[#C89B5C] rounded-xl p-4 flex flex-col justify-between transition group"
             >
               <div className="flex items-center justify-between mb-3">
