@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import ProductCard from '../components/ProductCard';
 import { updatePageMeta } from '../utils/seo';
@@ -17,6 +18,7 @@ export default function CollectionsPage() {
   const [maxPrice, setMaxPrice] = useState(600000);
   const [sortBy, setSortBy] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 6;
 
@@ -38,6 +40,28 @@ export default function CollectionsPage() {
       } catalogue with transparent INR prices, BIS 916 hallmark details, and WhatsApp enquiry.`,
     });
   }, [selectedCategory]);
+
+  useEffect(() => {
+    if (!filtersOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setFiltersOpen(false);
+    };
+    const closeOnDesktopResize = () => {
+      if (window.matchMedia('(min-width: 768px)').matches) setFiltersOpen(false);
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', closeOnEscape);
+    window.addEventListener('resize', closeOnDesktopResize);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+      window.removeEventListener('resize', closeOnDesktopResize);
+    };
+  }, [filtersOpen]);
 
   const filteredProducts = useMemo(() => {
     let list = products.filter((p) => p.isActive !== false);
@@ -126,6 +150,170 @@ export default function CollectionsPage() {
     setSearchParams({});
   };
 
+  const renderCategoryFilters = (mobile = false) => (
+    <div
+      className={
+        mobile
+          ? 'flex flex-wrap gap-2 pb-5 mb-5 border-b border-[#E9DED0]'
+          : 'flex items-center gap-2 overflow-x-auto pb-4 mb-6 border-b border-[#E9DED0]'
+      }
+    >
+      <button
+        type="button"
+        onClick={() => {
+          setSelectedCategory('All');
+          setPage(1);
+        }}
+        className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition ${
+          selectedCategory === 'All'
+            ? 'bg-[#C89B5C] text-white border-[#C89B5C]'
+            : 'bg-[#F7F2EA] text-[#3C2B20] border-[#E9DED0] hover:border-[#C89B5C]'
+        }`}
+      >
+        All Categories
+      </button>
+      {categories.map((cat) => (
+        <button
+          key={cat._id || cat.slug}
+          type="button"
+          onClick={() => {
+            setSelectedCategory(cat.name);
+            setPage(1);
+          }}
+          className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition ${
+            selectedCategory === cat.name
+              ? 'bg-[#C89B5C] text-white border-[#C89B5C]'
+              : 'bg-[#F7F2EA] text-[#3C2B20] border-[#E9DED0] hover:border-[#C89B5C]'
+          }`}
+        >
+          {cat.name}
+        </button>
+      ))}
+    </div>
+  );
+
+  const renderAttributeFilters = (mobile = false) => (
+    <div
+      className={`bg-[#F7F2EA] border border-[#E9DED0] rounded-2xl p-5 mb-8 grid gap-4 items-end ${
+        mobile ? 'grid-cols-1 mb-5' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-6'
+      }`}
+    >
+      <div>
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
+          Search Name / SKU
+        </label>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(1);
+          }}
+          placeholder="e.g. Kundan, AAR-KND..."
+          className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
+        />
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
+          Metal Filter
+        </label>
+        <select
+          value={metalType}
+          onChange={(e) => {
+            setMetalType(e.target.value);
+            setPage(1);
+          }}
+          className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
+        >
+          <option value="All">All Metals</option>
+          <option value="Gold">22K Gold</option>
+          <option value="Kundan & Gold">Kundan &amp; Gold</option>
+          <option value="Polki & Gold">Polki &amp; Gold</option>
+          <option value="Temple Gold">Temple Gold</option>
+          <option value="Diamond & Gold">18K Gold &amp; Diamond</option>
+          <option value="Silver">92.5 Sterling Silver</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
+          Occasion
+        </label>
+        <select
+          value={occasion}
+          onChange={(e) => {
+            setOccasion(e.target.value);
+            setPage(1);
+          }}
+          className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
+        >
+          <option value="All">All Occasions</option>
+          <option value="Bridal">Bridal</option>
+          <option value="Festive">Festive</option>
+          <option value="Temple & Ceremonial">Temple &amp; Ceremonial</option>
+          <option value="Cocktail & Evening">Cocktail &amp; Evening</option>
+          <option value="Everyday Luxury">Everyday Luxury</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
+          Gemstone Filter
+        </label>
+        <select
+          value={stoneFilter}
+          onChange={(e) => {
+            setStoneFilter(e.target.value);
+            setPage(1);
+          }}
+          className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
+        >
+          <option value="All">All Gemstones</option>
+          <option value="Polki">Uncut Polki</option>
+          <option value="Ruby">Burmese Ruby</option>
+          <option value="Emerald">Emerald</option>
+          <option value="Pearl">Natural Pearls</option>
+          <option value="Solitaire">Solitaire Diamond</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
+          Max Price: <strong className="text-[#3C2B20]">{formatINR(maxPrice)}</strong>
+        </label>
+        <input
+          type="range"
+          min="25000"
+          max="600000"
+          step="5000"
+          value={maxPrice}
+          onChange={(e) => {
+            setMaxPrice(Number(e.target.value));
+            setPage(1);
+          }}
+          className="w-full accent-[#C89B5C]"
+        />
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
+          Sort By
+        </label>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
+        >
+          <option value="newest">Newest Arrivals</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="popular">Most Popular</option>
+        </select>
+      </div>
+    </div>
+  );
+
   return (
     <div>
       <section className="bg-[#F4EEE5] border-b border-[#E9DED0] py-10">
@@ -140,157 +328,78 @@ export default function CollectionsPage() {
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 border-b border-[#E9DED0]">
+        <div className="mb-6 flex justify-end md:hidden">
           <button
             type="button"
-            onClick={() => {
-              setSelectedCategory('All');
-              setPage(1);
-            }}
-            className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition ${
-              selectedCategory === 'All'
-                ? 'bg-[#C89B5C] text-white border-[#C89B5C]'
-                : 'bg-[#F7F2EA] text-[#3C2B20] border-[#E9DED0] hover:border-[#C89B5C]'
-            }`}
+            onClick={() => setFiltersOpen(true)}
+            aria-label="Open search filters"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#E9DED0] bg-[#F7F2EA] px-4 py-2.5 text-sm font-semibold text-[#3C2B20] hover:border-[#C89B5C]"
           >
-            All Categories
+            <SlidersHorizontal className="h-4 w-4 text-[#C89B5C]" />
+            Filters
           </button>
-          {categories.map((cat) => (
+        </div>
+
+        <div className="hidden md:block">
+          {renderCategoryFilters()}
+          {renderAttributeFilters()}
+        </div>
+
+        {filtersOpen && (
+          <div className="fixed inset-0 z-[60] md:hidden">
             <button
-              key={cat._id || cat.slug}
               type="button"
-              onClick={() => {
-                setSelectedCategory(cat.name);
-                setPage(1);
-              }}
-              className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold border transition ${
-                selectedCategory === cat.name
-                  ? 'bg-[#C89B5C] text-white border-[#C89B5C]'
-                  : 'bg-[#F7F2EA] text-[#3C2B20] border-[#E9DED0] hover:border-[#C89B5C]'
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-
-        {/* Multi-Attribute Filters */}
-        <div className="bg-[#F7F2EA] border border-[#E9DED0] rounded-2xl p-5 mb-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
-          <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
-              Search Name / SKU
-            </label>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setPage(1);
-              }}
-              placeholder="e.g. Kundan, AAR-KND..."
-              className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
+              onClick={() => setFiltersOpen(false)}
+              aria-label="Close search filters"
+              className="absolute inset-0 h-full w-full bg-black/40"
             />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
-              Metal Filter
-            </label>
-            <select
-              value={metalType}
-              onChange={(e) => {
-                setMetalType(e.target.value);
-                setPage(1);
-              }}
-              className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
+            <aside
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mobile-filter-title"
+              className="relative z-10 ml-auto flex h-full w-[min(90vw,24rem)] flex-col border-l border-[#E9DED0] bg-[#FAF8F4] shadow-2xl"
             >
-              <option value="All">All Metals</option>
-              <option value="Gold">22K Gold</option>
-              <option value="Kundan & Gold">Kundan &amp; Gold</option>
-              <option value="Polki & Gold">Polki &amp; Gold</option>
-              <option value="Temple Gold">Temple Gold</option>
-              <option value="Diamond & Gold">18K Gold &amp; Diamond</option>
-              <option value="Silver">92.5 Sterling Silver</option>
-            </select>
-          </div>
+              <div className="flex items-center justify-between border-b border-[#E9DED0] px-5 py-4">
+                <h2 id="mobile-filter-title" className="font-serif text-2xl font-semibold text-[#3C2B20]">
+                  Search Filters
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setFiltersOpen(false)}
+                  aria-label="Close search filters"
+                  className="rounded-full p-2 text-[#3C2B20] hover:bg-[#F4EEE5]"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
-              Occasion
-            </label>
-            <select
-              value={occasion}
-              onChange={(e) => {
-                setOccasion(e.target.value);
-                setPage(1);
-              }}
-              className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
-            >
-              <option value="All">All Occasions</option>
-              <option value="Bridal">Bridal</option>
-              <option value="Festive">Festive</option>
-              <option value="Temple & Ceremonial">Temple &amp; Ceremonial</option>
-              <option value="Cocktail & Evening">Cocktail &amp; Evening</option>
-              <option value="Everyday Luxury">Everyday Luxury</option>
-            </select>
-          </div>
+              <div className="flex-1 overflow-y-auto p-5">
+                {renderCategoryFilters(true)}
+                {renderAttributeFilters(true)}
+              </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
-              Gemstone Filter
-            </label>
-            <select
-              value={stoneFilter}
-              onChange={(e) => {
-                setStoneFilter(e.target.value);
-                setPage(1);
-              }}
-              className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
-            >
-              <option value="All">All Gemstones</option>
-              <option value="Polki">Uncut Polki</option>
-              <option value="Ruby">Burmese Ruby</option>
-              <option value="Emerald">Emerald</option>
-              <option value="Pearl">Natural Pearls</option>
-              <option value="Solitaire">Solitaire Diamond</option>
-            </select>
+              <div className="flex gap-3 border-t border-[#E9DED0] bg-[#FAF8F4] p-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleReset();
+                    setFiltersOpen(false);
+                  }}
+                  className="flex-1 rounded-xl border border-[#C89B5C] px-4 py-3 text-xs font-semibold text-[#3C2B20]"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFiltersOpen(false)}
+                  className="flex-1 rounded-xl bg-[#C89B5C] px-4 py-3 text-xs font-semibold text-white"
+                >
+                  Show {filteredProducts.length} Pieces
+                </button>
+              </div>
+            </aside>
           </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
-              Max Price: <strong className="text-[#3C2B20]">{formatINR(maxPrice)}</strong>
-            </label>
-            <input
-              type="range"
-              min="25000"
-              max="600000"
-              step="5000"
-              value={maxPrice}
-              onChange={(e) => {
-                setMaxPrice(Number(e.target.value));
-                setPage(1);
-              }}
-              className="w-full accent-[#C89B5C]"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#827466] mb-1">
-              Sort By
-            </label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-[#E9DED0] bg-white text-xs text-[#3C2B20]"
-            >
-              <option value="newest">Newest Arrivals</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="popular">Most Popular</option>
-            </select>
-          </div>
-        </div>
+        )}
 
         <div className="flex items-center justify-between mb-6 text-xs text-[#827466]">
           <p>
